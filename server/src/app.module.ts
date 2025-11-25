@@ -3,6 +3,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
+import { BookmarksModule } from './bookmarks/bookmarks.module';
+import { TagsModule } from './tags/tags.module';
 
 @Module({
   imports: [
@@ -17,6 +19,8 @@ import { UsersModule } from './users/users.module';
       synchronize: true, // auto-creates tables
     }),
     UsersModule,
+    BookmarksModule,
+    TagsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
