@@ -8,7 +8,7 @@ import {
 
 import { Bookmark } from '../../bookmarks/entities/bookmark.entity';
 
-@Entity()
+@Entity('users')
 export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
