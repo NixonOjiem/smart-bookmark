@@ -1,0 +1,36 @@
+# Node.js dependencies
+client/node_modules
+server/node_modules
+
+# Build outputs
+client/.next
+client/out
+server/dist
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment variables
+client/.env
+client/.env.local
+client/.env.*.local
+server/.env
+server/.env.*
+
+# Coverage reports
+client/coverage
+server/coverage
+
+# IDE/editor settings
+.vscode/
+
+
+# Misc caches
+client/.turbo
+client/.vercel
+server/.cache
