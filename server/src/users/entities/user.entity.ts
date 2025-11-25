@@ -19,6 +19,9 @@ export class User {
   @Column()
   name: string;
 
+  @Column({ select: false }) // Security: password is not returened in queries
+  password: string;
+
   @CreateDateColumn()
   createdAt: Date;
 
