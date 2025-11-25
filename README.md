@@ -20,3 +20,11 @@ Go to terminal
 cd server
 npm install
 npm run start:dev
+
+# Using Postgresql
+
+For the following reasons
+
+1. The data is relational, users have bookmarks
+2. Enforce Data Integrity, No ophaned bookmarks
+3. Native Full Text search
