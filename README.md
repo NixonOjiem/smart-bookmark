@@ -34,3 +34,6 @@ For the following reasons
 when in development: Use localhost, later when packaging for docker Use postgres
 
 # Using TypeORM on Nestjs
+
+1. Fast development
+2. No sql Injections
