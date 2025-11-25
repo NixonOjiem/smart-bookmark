@@ -10,7 +10,7 @@ services:
       POSTGRES_PASSWORD: password123
       POSTGRES_DB: bookmark_manager
     ports:
-      - "5432:5432"  # Maps Docker port 5432 to local dev environment port 5432
+      - "5434:5432"  # Maps Docker port 5434 to local dev environment port 5432
     volumes:
       - postgres_data:/var/lib/postgresql/data # Persist data, no data lose on restart
 

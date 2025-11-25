@@ -29,4 +29,8 @@ For the following reasons
 2. Enforce Data Integrity, No ophaned bookmarks
 3. Native Full Text search
 
+## Connecting to Database
+
+when in development: Use localhost, later when packaging for docker Use postgres
+
 # Using TypeORM on Nestjs
