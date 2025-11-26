@@ -10,6 +10,7 @@ import { User } from './users/entities/user.entity';
 import { Bookmark } from './bookmarks/entities/bookmark.entity';
 import { AuthModule } from './auth/auth.module';
 import { Tag } from './tags/entities/tag.entity';
+import { AdminController } from './admin/admin.controller';
 @Module({
   imports: [
     // 1. Load Config Globally
@@ -34,8 +35,9 @@ import { Tag } from './tags/entities/tag.entity';
     BookmarksModule,
     TagsModule,
     AuthModule,
+    TypeOrmModule.forFeature([User, Bookmark, Tag]),
   ],
-  controllers: [AppController],
+  controllers: [AppController, AdminController],
   providers: [AppService],
 })
 export class AppModule {}

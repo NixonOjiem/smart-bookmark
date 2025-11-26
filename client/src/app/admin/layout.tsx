@@ -1,9 +1,17 @@
 "use client";
 
 import { useEffect } from "react";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../context/AuthContext"; // Adjust path if needed
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+
+// 1. Import FontAwesome components and specific icons
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faChartBar,
+  faUsers,
+  faArrowLeft, // Better than faBackward for navigation
+} from "@fortawesome/free-solid-svg-icons";
 
 export default function AdminLayout({
   children,
@@ -19,7 +27,7 @@ export default function AdminLayout({
         router.push("/auth"); // Redirect to Login
         return;
       }
-      // 3. Check if User is Admin
+      // Check if User is Admin
       if (user.role !== "admin") {
         console.warn("Unauthorized Access: User is not admin");
         router.push("/dashboard"); // back to normal dashboard
@@ -40,7 +48,6 @@ export default function AdminLayout({
   }
 
   // --- UNAUTHORIZED STATE ---
-  // If user is null or not admin, don't render anything (redirect is happening)
   if (!user || user.role !== "admin") {
     return null;
   }
@@ -48,7 +55,7 @@ export default function AdminLayout({
   // --- AUTHORIZED ADMIN LAYOUT ---
   return (
     <div className="flex min-h-screen bg-gray-100">
-      {/* Dark Sidebar to distinguish from User Dashboard */}
+      {/* Dark Sidebar */}
       <aside className="w-64 bg-gray-900 text-white flex flex-col shadow-xl">
         <div className="p-6 border-b border-gray-800">
           <h1 className="text-2xl font-bold text-purple-400">Admin Panel</h1>
@@ -56,12 +63,27 @@ export default function AdminLayout({
         </div>
 
         <nav className="flex-1 p-4 space-y-2">
-          <AdminLink href="/admin" label="Overview" icon="📊" />
-          <AdminLink href="/admin/users" label="User Management" icon="👥" />
-          <AdminLink href="/admin/settings" label="System Settings" icon="⚙️" />
+          {/* Overview Link */}
+          <AdminLink
+            href="/admin"
+            label="Overview"
+            icon={<FontAwesomeIcon icon={faChartBar} className="w-5 h-5" />}
+          />
+
+          {/* User Management Link */}
+          <AdminLink
+            href="/admin/users"
+            label="User Management"
+            icon={<FontAwesomeIcon icon={faUsers} className="w-5 h-5" />}
+          />
 
           <div className="pt-8 border-t border-gray-800 mt-4">
-            <AdminLink href="/dashboard" label="Exit to App" icon="↩️" />
+            {/* Exit Link */}
+            <AdminLink
+              href="/dashboard"
+              label="Exit to App"
+              icon={<FontAwesomeIcon icon={faArrowLeft} className="w-5 h-5" />}
+            />
           </div>
         </nav>
 
@@ -85,14 +107,14 @@ function AdminLink({
 }: {
   href: string;
   label: string;
-  icon: string;
+  icon: React.ReactNode; // Changed to accept the Icon Component
 }) {
   return (
     <Link
       href={href}
       className="flex items-center px-4 py-3 text-gray-300 rounded-lg hover:bg-gray-800 hover:text-white transition-all"
     >
-      <span className="mr-3">{icon}</span>
+      <span className="mr-3 flex items-center justify-center w-6">{icon}</span>
       <span className="font-medium">{label}</span>
     </Link>
   );

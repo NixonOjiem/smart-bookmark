@@ -1,7 +1,11 @@
 import React from "react";
-
+import AdminDashboard from "@/components/admin/AdminDashboard";
 function page() {
-  return <div>page admin</div>;
+  return (
+    <>
+      <AdminDashboard />
+    </>
+  );
 }
 
 export default page;
