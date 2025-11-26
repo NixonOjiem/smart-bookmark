@@ -7,7 +7,7 @@ import {
 } from 'typeorm';
 
 import { Bookmark } from '../../bookmarks/entities/bookmark.entity';
-import { Tag } from 'src/tags/entities/tag.entity';
+import { Tag } from '../../tags/entities/tag.entity';
 
 @Entity('users')
 export class User {
