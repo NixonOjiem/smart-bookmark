@@ -5,10 +5,13 @@ import {
   CreateDateColumn,
   ManyToOne,
   JoinColumn,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
+import { Tag } from '../../tags/entities/tag.entity';
 
-@Entity()
+@Entity('bookmarks')
 export class Bookmark {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -31,5 +34,10 @@ export class Bookmark {
   user: User;
 
   @Column()
-  userId: string;
+  userId: string; // for API filtering
+
+  // Relation: Many-to-Many with Tags
+  @ManyToMany(() => Tag, (tag) => tag.bookmarks, { cascade: true })
+  @JoinTable() // This creates the pivot table (bookmark_tags) automatically
+  tags: Tag[];
 }

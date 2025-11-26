@@ -9,7 +9,7 @@ import { TagsModule } from './tags/tags.module';
 import { User } from './users/entities/user.entity';
 import { Bookmark } from './bookmarks/entities/bookmark.entity';
 import { AuthModule } from './auth/auth.module';
-
+import { Tag } from './tags/entities/tag.entity';
 @Module({
   imports: [
     // 1. Load Config Globally
@@ -26,7 +26,7 @@ import { AuthModule } from './auth/auth.module';
         username: configService.get<string>('POSTGRES_USER'),
         password: configService.get<string>('POSTGRES_PASSWORD'),
         database: configService.get<string>('POSTGRES_DB'),
-        entities: [User, Bookmark],
+        entities: [User, Bookmark, Tag],
         synchronize: true, // For dev true.
       }),
     }),
