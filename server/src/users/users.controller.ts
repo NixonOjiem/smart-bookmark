@@ -14,6 +14,7 @@ import { User } from './entities/user.entity';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
+import { Delete } from '@nestjs/common';
 
 @Controller('v1/users')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -40,5 +41,11 @@ export class UsersController {
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(id, updateUserDto);
+  }
+
+  @Delete(':id')
+  @Roles('admin') // <--- CRITICAL: Only Admins can delete users
+  remove(@Param('id') id: string) {
+    return this.usersService.remove(id);
   }
 }

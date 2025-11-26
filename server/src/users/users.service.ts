@@ -73,4 +73,12 @@ export class UsersService {
     // Save and return
     return this.usersRepository.save(updatedUser);
   }
+  async remove(id: string): Promise<void> {
+    // Check if user exists first
+    const user = await this.findOne(id);
+    if (!user) {
+      throw new NotFoundException(`User #${id} not found`);
+    }
+    await this.usersRepository.delete(id);
+  }
 }
