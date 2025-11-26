@@ -12,26 +12,41 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  // 1. Validate User
-  async validateUser(email: string, pass: string): Promise<any> {
+  // Return explicit 'User' or 'null'
+  async validateUser(email: string, pass: string): Promise<User | null> {
     const user = await this.usersService.findOneByEmail(email);
+
+    // DEBUGGING LOGS
+    console.log('1. Trying to find user:', email);
+    console.log('2. User found in DB?', !!user);
+
+    // Check if user exists AND password matches
     if (user && (await bcrypt.compare(pass, user.password))) {
-      // FIX: Rename to _password so linter ignores it
+      // Destructure to remove password from the result
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password: _password, ...result } = user;
-      return result;
+      return result as User;
     }
     return null;
   }
 
-  // 2. Login
-  // FIX: Removed 'async' (no await needed)
-  // FIX: Typed 'user' as 'User' instead of 'any' to fix unsafe access errors
+  // 2. Login - NOW INCLUDES ROLE AND NAME
   login(user: User) {
-    const payload = { email: user.email, sub: user.id };
+    const payload = {
+      // email: user.email,
+      sub: user.id,
+      name: user.name,
+      role: user.role,
+    };
+
     return {
       access_token: this.jwtService.sign(payload),
-      user: { id: user.id, email: user.email, name: user.name },
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+      },
     };
   }
 

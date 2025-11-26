@@ -11,7 +11,7 @@ export class UsersService {
     private usersRepository: Repository<User>,
   ) {}
 
-  // Added ': Promise<User>'
+  // Promise<User>'
   async create(createUserDto: CreateUserDto): Promise<User> {
     const existingUser = await this.usersRepository.findOne({
       where: { email: createUserDto.email },
@@ -25,12 +25,12 @@ export class UsersService {
     return this.usersRepository.save(user);
   }
 
-  // Added ': Promise<User[]>'
+  // Promise<User[]>'
   findAll(): Promise<User[]> {
     return this.usersRepository.find();
   }
 
-  // Added ': Promise<User | null>'
+  // Promise<User | null>'
   findOne(id: string): Promise<User | null> {
     return this.usersRepository.findOne({
       where: { id },
@@ -38,11 +38,11 @@ export class UsersService {
     });
   }
 
-  // Added ': Promise<User | null>'
+  // Promise<User | null>'
   async findOneByEmail(email: string): Promise<User | null> {
     return this.usersRepository.findOne({
       where: { email },
-      select: ['id', 'email', 'name', 'password', 'createdAt'],
+      select: ['id', 'email', 'name', 'password', 'role', 'createdAt'],
     });
   }
 }

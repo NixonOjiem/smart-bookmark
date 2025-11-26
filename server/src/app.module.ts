@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config'; // for env
+import { ConfigModule, ConfigService } from '@nestjs/config'; // Import ConfigService
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -12,17 +12,24 @@ import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: 'localhost', // Connecting from machine to Docker
-      port: 5434,
-      username: 'user',
-      password: 'password123',
-      database: 'bookmark_manager',
-      entities: [User, Bookmark],
-      synchronize: true, // auto-creates tables
-    }),
+    // 1. Load Config Globally
     ConfigModule.forRoot({ isGlobal: true }),
+
+    // 2.  inject ConfigService
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        host: configService.get<string>('POSTGRES_HOST'),
+        port: configService.get<number>('POSTGRES_PORT'),
+        username: configService.get<string>('POSTGRES_USER'),
+        password: configService.get<string>('POSTGRES_PASSWORD'),
+        database: configService.get<string>('POSTGRES_DB'),
+        entities: [User, Bookmark],
+        synchronize: true, // For dev true.
+      }),
+    }),
     UsersModule,
     BookmarksModule,
     TagsModule,

@@ -23,7 +23,6 @@ export class AuthController {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    // The linter knows 'user' is not null here because of the check above
     return this.authService.login(user);
   }
 }

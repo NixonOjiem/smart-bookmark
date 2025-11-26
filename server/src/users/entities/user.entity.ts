@@ -22,6 +22,9 @@ export class User {
   @Column({ select: false }) // Security: password is not returened in queries
   password: string;
 
+  @Column({ default: 'user' }) // New Role Column (Defaults to 'user')
+  role: string;
+
   @CreateDateColumn()
   createdAt: Date;
 

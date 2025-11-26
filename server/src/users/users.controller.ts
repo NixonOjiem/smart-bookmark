@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Param } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { User } from './entities/user.entity'; // <--- Import User
+import { User } from './entities/user.entity';
 
 @Controller('users')
 export class UsersController {
@@ -9,19 +9,19 @@ export class UsersController {
 
   @Post()
   create(@Body() createUserDto: CreateUserDto): Promise<User> {
-    // <--- Type Added
+    // Type Added
     return this.usersService.create(createUserDto);
   }
 
   @Get()
   findAll(): Promise<User[]> {
-    // <--- Type Added
+    // Type Added
     return this.usersService.findAll();
   }
 
   @Get(':id')
   findOne(@Param('id') id: string): Promise<User | null> {
-    // <--- Type Added
+    // Type Added
     return this.usersService.findOne(id);
   }
 }
