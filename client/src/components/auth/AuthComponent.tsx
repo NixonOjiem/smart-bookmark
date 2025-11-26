@@ -1,16 +1,26 @@
 "use client";
 
 import React, { useState } from "react";
+import { useAuth } from "../../context/AuthContext";
+
+interface AuthResponse {
+  access_token: string;
+  user: {
+    id: string;
+    email: string;
+    name: string;
+    role: string;
+  };
+}
 
 function AuthComponent() {
-  // call API endpoints for authentication
+  const { login } = useAuth();
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-  console.log(baseUrl);
 
-  //  toggle between Login and Signup
   const [isLogin, setIsLogin] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  // capture form data
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -19,164 +29,146 @@ function AuthComponent() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    setError("");
+  };
+
+  // process server response
+  const handleServerResponse = (data: AuthResponse) => {
+    if (data.access_token && data.user) {
+      // IMMEDIATE UPDATE: Update Context & LocalStorage instantly
+      login(data.access_token, data.user);
+    } else {
+      throw new Error("Server response missing token or user data");
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
+    setIsLoading(true);
 
-    if (isLogin) {
-      console.log("Logging in with:", formData.email, formData.password);
-
-      try {
+    try {
+      if (isLogin) {
+        // --- LOGIN FUNCTION ---
+        console.log("Attempting Login...");
         const response = await fetch(`${baseUrl}/auth/signin`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             email: formData.email,
             password: formData.password,
           }),
         });
 
-        if (!response.ok) {
-          throw new Error("Login failed");
-        }
-
         const data = await response.json();
-        console.log("Login success:", data);
+        if (!response.ok) throw new Error(data.message || "Login failed");
 
-        // Example: save token to localStorage
-        localStorage.setItem("token", data.access_token);
-      } catch (error) {
-        console.error("Error logging in:", error);
-      }
-    } else {
-      console.log("Signing up with:", formData);
-
-      try {
+        handleServerResponse(data);
+      } else {
+        // --- SIGNUP FUNCTION (Restored) ---
+        console.log("Attempting Signup...");
         const response = await fetch(`${baseUrl}/auth/signup`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
+          // Send name, email, and password for signup
           body: JSON.stringify(formData),
         });
 
-        if (!response.ok) {
-          throw new Error("Signup failed");
-        }
-
         const data = await response.json();
-        console.log("Signup success:", data);
+        if (!response.ok) throw new Error(data.message || "Signup failed");
 
-        // Optionally auto-login after signup
-        localStorage.setItem("token", data.access_token);
-      } catch (error) {
-        console.error("Error signing up:", error);
+        handleServerResponse(data);
       }
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        console.error("Auth Error:", err);
+        setError(err.message);
+      } else {
+        console.error("Unexpected error:", err);
+        setError("An unexpected error occurred");
+      }
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-lg border border-gray-100">
-        {/* Header Section */}
         <div className="text-center">
           <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
-            {isLogin ? "Welcome back" : "Create an account"}
+            {isLogin ? "Welcome Back" : "Create Account"}
           </h2>
-          <p className="mt-2 text-sm text-gray-600">
-            {isLogin
-              ? "Sign in to access your dashboard"
-              : "Start organizing your bookmarks today"}
-          </p>
         </div>
 
-        {/* The Form */}
+        {error && (
+          <div className="bg-red-50 text-red-600 p-3 rounded-md text-sm text-center border border-red-200">
+            {error}
+          </div>
+        )}
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm space-y-4">
-            {/* Name Field (Only show for Signup) */}
+            {/* Name is only required for Signup */}
             {!isLogin && (
-              <div>
-                <label htmlFor="name" className="sr-only">
-                  Full Name
-                </label>
-                <input
-                  id="name"
-                  name="name"
-                  type="text"
-                  required={!isLogin}
-                  className="appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                  placeholder="Full Name"
-                  value={formData.name}
-                  onChange={handleChange}
-                />
-              </div>
+              <input
+                name="name"
+                type="text"
+                required={!isLogin}
+                className="appearance-none block w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Full Name"
+                value={formData.name}
+                onChange={handleChange}
+              />
             )}
 
-            {/* Email Field */}
-            <div>
-              <label htmlFor="email-address" className="sr-only">
-                Email address
-              </label>
-              <input
-                id="email-address"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                className="appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Email address"
-                value={formData.email}
-                onChange={handleChange}
-              />
-            </div>
+            <input
+              name="email"
+              type="email"
+              required
+              className="appearance-none block w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Email address"
+              value={formData.email}
+              onChange={handleChange}
+            />
 
-            {/* Password Field */}
-            <div>
-              <label htmlFor="password" className="sr-only">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                className="appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Password"
-                value={formData.password}
-                onChange={handleChange}
-              />
-            </div>
+            <input
+              name="password"
+              type="password"
+              required
+              className="appearance-none block w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Password"
+              value={formData.password}
+              onChange={handleChange}
+            />
           </div>
 
-          {/* Action Button */}
-          <div>
-            <button
-              type="submit"
-              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
-            >
-              {isLogin ? "Sign in" : "Sign up"}
-            </button>
-          </div>
+          <button
+            type="submit"
+            disabled={isLoading}
+            className={`w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white 
+              ${
+                isLoading
+                  ? "bg-blue-400 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-700"
+              } 
+              transition-colors duration-200`}
+          >
+            {isLoading ? "Processing..." : isLogin ? "Sign in" : "Sign up"}
+          </button>
         </form>
 
-        {/* Toggle Switch Text */}
         <div className="text-center">
-          <p className="text-sm text-gray-600">
-            {isLogin ? "Don't have an account? " : "Already have an account? "}
-            <button
-              onClick={() => {
-                setIsLogin(!isLogin);
-                setFormData({ name: "", email: "", password: "" });
-              }}
-              className="font-medium text-blue-600 hover:text-blue-500 focus:outline-none underline"
-            >
-              {isLogin ? "Sign up" : "Log in"}
-            </button>
-          </p>
+          <button
+            type="button"
+            onClick={() => {
+              setIsLogin(!isLogin);
+              setFormData({ name: "", email: "", password: "" });
+              setError("");
+            }}
+            className="text-sm font-medium text-blue-600 hover:text-blue-500 hover:underline focus:outline-none"
+          >
+            {isLogin ? "Need an account? Sign up" : "Have an account? Log in"}
+          </button>
         </div>
       </div>
     </div>
