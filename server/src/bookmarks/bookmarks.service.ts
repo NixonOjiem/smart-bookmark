@@ -32,7 +32,6 @@ export class BookmarksService {
     }
 
     // 2. Resolve Tags (User-Scoped)
-    // The error is fixed because the helper now accepts undefined
     const tagEntities = await this.preloadTagsByName(tags, userId);
 
     const bookmark = this.bookmarkRepository.create({
@@ -91,7 +90,6 @@ export class BookmarksService {
   }
 
   // --- HELPER METHOD ---
-  // FIX: Added '| undefined' to the type definition below
   private async preloadTagsByName(
     tagNames: string[] | undefined,
     userId: string,

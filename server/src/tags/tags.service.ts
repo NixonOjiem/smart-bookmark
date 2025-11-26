@@ -28,7 +28,6 @@ export class TagsService {
     if (existing) throw new ConflictException('You already have this tag');
 
     // 2. Create new tag linked to user
-    // FIX: Do not use '...createTagDto'. Map 'name' explicitly to satisfy the linter.
     const tag = this.tagRepository.create({
       name: createTagDto.name,
       user: { id: userId },
@@ -55,8 +54,7 @@ export class TagsService {
   async update(id: number, updateTagDto: UpdateTagDto, userId: string) {
     const tag = await this.findOne(id, userId);
 
-    // Ideally, explicit assignment is safer here too, but Object.assign is usually allowed.
-    // If this throws an error later, change it to: tag.name = updateTagDto.name;
+    // tag.name = updateTagDto.name;
     if (updateTagDto.name) {
       tag.name = updateTagDto.name;
     }

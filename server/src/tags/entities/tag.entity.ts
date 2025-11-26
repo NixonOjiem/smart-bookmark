@@ -10,7 +10,7 @@ import { User } from '../../users/entities/user.entity';
 import { Bookmark } from '../../bookmarks/entities/bookmark.entity';
 
 @Entity()
-@Unique(['name', 'user']) // <--- CRITICAL: Allows 'News' for User A AND User B
+@Unique(['name', 'user'])
 export class Tag {
   @PrimaryGeneratedColumn()
   id: number;
