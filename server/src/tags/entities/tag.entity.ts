@@ -1,13 +1,25 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToMany } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  ManyToMany,
+  Unique,
+} from 'typeorm';
+import { User } from '../../users/entities/user.entity';
 import { Bookmark } from '../../bookmarks/entities/bookmark.entity';
 
-@Entity('tags')
+@Entity()
+@Unique(['name', 'user']) // <--- CRITICAL: Allows 'News' for User A AND User B
 export class Tag {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-  @Column({ unique: true })
+  @Column()
   name: string;
+
+  @ManyToOne(() => User, (user) => user.tags, { onDelete: 'CASCADE' })
+  user: User;
 
   @ManyToMany(() => Bookmark, (bookmark) => bookmark.tags)
   bookmarks: Bookmark[];

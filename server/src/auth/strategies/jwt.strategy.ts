@@ -6,7 +6,6 @@ import { ConfigService } from '@nestjs/config';
 // 1. Define JWT Token data looks like
 interface JwtPayload {
   sub: string;
-  // email: string;
   name: string;
   role: string;
 }
@@ -23,11 +22,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   // This attaches to req.user
   validate(payload: JwtPayload) {
+    console.log('JWT Payload:', payload);
     return {
       userId: payload.sub,
-      //email: payload.email,
-      name: payload.name, // <--- Available in req.user.name
-      role: payload.role, // <--- Available in req.user.role
+      name: payload.name,
+      role: payload.role,
     };
   }
 }

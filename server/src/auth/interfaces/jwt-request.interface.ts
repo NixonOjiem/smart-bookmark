@@ -2,8 +2,7 @@ import { Request } from 'express';
 
 export interface JwtRequest extends Request {
   user: {
-    sub: string;
-    // email: string;
+    userId: string;
     name: string;
     role: string;
   };

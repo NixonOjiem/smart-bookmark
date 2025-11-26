@@ -17,23 +17,25 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import type { JwtRequest } from 'src/auth/interfaces/jwt-request.interface';
 
 @UseGuards(JwtAuthGuard)
-@Controller('bookmarks')
+@Controller('/v1/bookmarks')
 export class BookmarksController {
   constructor(private readonly bookmarksService: BookmarksService) {}
 
   @Post()
   create(@Body() createBookmarkDto: CreateBookmarkDto, @Req() req: JwtRequest) {
-    return this.bookmarksService.create(createBookmarkDto, req.user.sub);
+    console.log('Request user:', req.user);
+    console.log('User sub:', req.user?.userId); // sub is id
+    return this.bookmarksService.create(createBookmarkDto, req.user.userId);
   }
 
   @Get()
   findAll(@Req() req: JwtRequest) {
-    return this.bookmarksService.findAll(req.user.sub);
+    return this.bookmarksService.findAll(req.user.userId);
   }
 
   @Get(':id')
   findOne(@Param('id') id: string, @Req() req: JwtRequest) {
-    return this.bookmarksService.findOne(id, req.user.sub);
+    return this.bookmarksService.findOne(id, req.user.userId);
   }
 
   @Patch(':id')
@@ -42,11 +44,11 @@ export class BookmarksController {
     @Body() updateBookmarkDto: UpdateBookmarkDto,
     @Req() req: JwtRequest,
   ) {
-    return this.bookmarksService.update(id, updateBookmarkDto, req.user.sub);
+    return this.bookmarksService.update(id, updateBookmarkDto, req.user.userId);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string, @Req() req: JwtRequest) {
-    return this.bookmarksService.remove(id, req.user.sub);
+    return this.bookmarksService.remove(id, req.user.userId);
   }
 }

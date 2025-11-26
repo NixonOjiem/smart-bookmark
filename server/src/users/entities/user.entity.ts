@@ -7,6 +7,7 @@ import {
 } from 'typeorm';
 
 import { Bookmark } from '../../bookmarks/entities/bookmark.entity';
+import { Tag } from 'src/tags/entities/tag.entity';
 
 @Entity('users')
 export class User {
@@ -31,4 +32,7 @@ export class User {
   // Relation: One User has Many Bookmarks
   @OneToMany(() => Bookmark, (bookmark) => bookmark.user)
   bookmarks: Bookmark[];
+  // One user many tags
+  @OneToMany(() => Tag, (tag) => tag.user)
+  tags: Tag[];
 }
