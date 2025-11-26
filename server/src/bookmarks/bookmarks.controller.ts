@@ -14,7 +14,7 @@ import { BookmarksService } from './bookmarks.service';
 import { CreateBookmarkDto } from './dto/create-bookmark.dto';
 import { UpdateBookmarkDto } from './dto/update-bookmark.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import type { JwtRequest } from 'src/auth/interfaces/jwt-request.interface';
+import type { JwtRequest } from '../auth/interfaces/jwt-request.interface';
 
 @UseGuards(JwtAuthGuard)
 @Controller('/v1/bookmarks')
