@@ -5,23 +5,33 @@ import { useAuth } from "../../context/AuthContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
+// 1. Import FontAwesome components and specific icons
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faUser,
+  faBookmark,
+  faBolt,
+  faGauge,
+  faSignOutAlt, // <--- Imported Logout Icon
+} from "@fortawesome/free-solid-svg-icons";
+
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { user, isLoading } = useAuth();
+  // 2. Get logout function from Context
+  const { user, isLoading, logout } = useAuth();
   const router = useRouter();
 
-  // 1. Protect the /dashoboard route
+  // Protect the /dashboard route
   useEffect(() => {
     if (!isLoading && !user) {
-      router.push("/auth"); // or "/login" depending on your route
+      router.push("/auth");
     }
   }, [user, isLoading, router]);
 
-  // 2. LOADING STATE
-  // While checking localStorage, show a spinner so the user doesn't see a broken page
+  // LOADING STATE
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white">
@@ -33,12 +43,11 @@ export default function DashboardLayout({
     );
   }
 
-  // If not loading and no user, return null (the useEffect above will redirect)
   if (!user) {
     return null;
   }
 
-  // 3. RENDER DASHBOARD (Sidebar + Content)
+  // RENDER DASHBOARD
   return (
     <div className="flex min-h-screen bg-gray-100">
       {/* --- SIDEBAR (Desktop) --- */}
@@ -47,16 +56,53 @@ export default function DashboardLayout({
           <h1 className="text-2xl font-bold text-blue-600">SmartMarks</h1>
         </div>
 
-        <nav className="flex-1 p-4 space-y-2">
-          <SidebarLink href="/dashboard" label="My Bookmarks" icon="📑" />
-          <SidebarLink href="/dashboard/profile" label="Profile" icon="👤" />
+        <nav className="flex-1 p-4 space-y-2 flex flex-col">
+          {/* Dashboard Link */}
+          <SidebarLink
+            href="/dashboard"
+            label="Dashboard"
+            icon={<FontAwesomeIcon icon={faGauge} className="w-5 h-5" />}
+          />
+
+          {/* Profile Link */}
+          <SidebarLink
+            href="/dashboard/profile"
+            label="Profile"
+            icon={<FontAwesomeIcon icon={faUser} className="w-5 h-5" />}
+          />
+
+          {/* Bookmarks Link */}
+          <SidebarLink
+            href="/dashboard/bookmarks"
+            label="Bookmarks"
+            icon={<FontAwesomeIcon icon={faBookmark} className="w-5 h-5" />}
+          />
 
           {/* Admin Link - Only show if role is admin */}
           {user.role === "admin" && (
-            <SidebarLink href="/admin" label="Admin Panel" icon="⚡" />
+            <SidebarLink
+              href="/admin"
+              label="Admin Panel"
+              icon={<FontAwesomeIcon icon={faBolt} className="w-5 h-5" />}
+            />
           )}
+
+          {/* Spacer to push logout to bottom (Optional) */}
+          <div className="flex-1"></div>
+
+          {/* --- LOGOUT BUTTON --- */}
+          <button
+            onClick={logout}
+            className="flex items-center px-4 py-3 w-full text-left text-gray-600 rounded-lg hover:bg-red-50 hover:text-red-600 transition-colors"
+          >
+            <span className="mr-3 flex items-center justify-center w-6">
+              <FontAwesomeIcon icon={faSignOutAlt} className="w-5 h-5" />
+            </span>
+            <span className="font-medium">Sign Out</span>
+          </button>
         </nav>
 
+        {/* User Footer */}
         <div className="p-4 border-t bg-gray-50">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold">
@@ -74,10 +120,12 @@ export default function DashboardLayout({
 
       {/* --- MAIN CONTENT --- */}
       <main className="flex-1 p-8 overflow-y-auto">
-        {/* Mobile Header (Visible only on small screens) */}
         <div className="md:hidden mb-6 flex justify-between items-center">
           <h1 className="text-xl font-bold text-blue-600">SmartMarks</h1>
-          {/* You can add a hamburger menu toggle here later */}
+          {/* Mobile Logout Button (Optional) */}
+          <button onClick={logout} className="text-gray-600 hover:text-red-600">
+            <FontAwesomeIcon icon={faSignOutAlt} className="w-5 h-5" />
+          </button>
         </div>
 
         {children}
@@ -86,7 +134,7 @@ export default function DashboardLayout({
   );
 }
 
-// Simple Helper Component for Links
+// --- HELPER COMPONENT ---
 function SidebarLink({
   href,
   label,
@@ -94,14 +142,14 @@ function SidebarLink({
 }: {
   href: string;
   label: string;
-  icon: string;
+  icon: React.ReactNode;
 }) {
   return (
     <Link
       href={href}
       className="flex items-center px-4 py-3 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-700 transition-colors"
     >
-      <span className="mr-3">{icon}</span>
+      <span className="mr-3 flex items-center justify-center w-6">{icon}</span>
       <span className="font-medium">{label}</span>
     </Link>
   );

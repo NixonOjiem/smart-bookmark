@@ -38,6 +38,17 @@ when in development: Use localhost, later when packaging for docker Use postgres
 1. Fast development
 2. No sql Injections
 
+## Backend
+
+API security ensured through JWT
+
 ## Frontend
 
-#using fontawsome icons
+# icons
+
+1. using fontawsome
+
+# State management
+
+1. Using Authcontext to capture user state upon login
+2. Route security ensured through user context and statemanagement
