@@ -24,8 +24,11 @@ export default function DashboardLayout({
   // While checking localStorage, show a spinner so the user doesn't see a broken page
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white">
+        <div className="flex flex-col items-center gap-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
+          <p>Verifying User Privileges...</p>
+        </div>
       </div>
     );
   }

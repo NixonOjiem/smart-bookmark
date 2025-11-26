@@ -37,3 +37,7 @@ when in development: Use localhost, later when packaging for docker Use postgres
 
 1. Fast development
 2. No sql Injections
+
+## Frontend
+
+#using fontawsome icons
