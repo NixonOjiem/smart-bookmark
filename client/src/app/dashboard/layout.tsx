@@ -11,6 +11,7 @@ import {
   faUser,
   faBookmark,
   faBolt,
+  faTags,
   faGauge,
   faSignOutAlt, // <--- Imported Logout Icon
 } from "@fortawesome/free-solid-svg-icons";
@@ -76,6 +77,12 @@ export default function DashboardLayout({
             href="/dashboard/bookmarks"
             label="Bookmarks"
             icon={<FontAwesomeIcon icon={faBookmark} className="w-5 h-5" />}
+          />
+          {/* Tags Link */}
+          <SidebarLink
+            href="/dashboard/tags"
+            label="Manage Tags"
+            icon={<FontAwesomeIcon icon={faTags} className="w-5 h-5" />}
           />
 
           {/* Admin Link - Only show if role is admin */}
