@@ -1,7 +1,11 @@
 import React from "react";
-
+import Profile from "@/components/dashboard/Profile";
 function page() {
-  return <div>client profile</div>;
+  return (
+    <>
+      <Profile />
+    </>
+  );
 }
 
 export default page;
