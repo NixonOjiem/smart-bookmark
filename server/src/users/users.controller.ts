@@ -1,6 +1,15 @@
-import { Controller, Get, Post, Body, Param, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Body,
+  Param,
+  UseGuards,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
@@ -18,14 +27,18 @@ export class UsersController {
 
   // --- SECURED ROUTE ---
   @Get()
-  @Roles('admin') // <--- 2. Only Admin can fetch ALL users
+  @Roles('admin') // Only Admin can fetch ALL users
   findAll(): Promise<User[]> {
     return this.usersService.findAll();
   }
 
-  // Normal users can still access this to find specific profiles (e.g., themselves)
+  // Normal users can still access this
   @Get(':id')
   findOne(@Param('id') id: string): Promise<User | null> {
     return this.usersService.findOne(id);
+  }
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    return this.usersService.update(id, updateUserDto);
   }
 }
