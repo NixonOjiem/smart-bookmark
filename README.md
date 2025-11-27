@@ -65,4 +65,4 @@ API security ensured through JWT
 1. If bookmark created without tags then AutoTaggingService is triggered
 2. Scrapping Layer: Cheerio and axios is used to scrap the site adn fetch title and meta data
 3. Filtering: Filters by part-of-speech to prioritize Nouns and Adjectives
-4. Tag Generation
+4. Tag Generation: Selects top 5 words

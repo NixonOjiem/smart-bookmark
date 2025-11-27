@@ -10,7 +10,7 @@ import { CreateBookmarkDto } from './dto/create-bookmark.dto';
 import { UpdateBookmarkDto } from './dto/update-bookmark.dto';
 import { Bookmark } from './entities/bookmark.entity';
 import { Tag } from '../tags/entities/tag.entity';
-import { AutoTaggingService } from './auto-tagging.service'; // <--- 1. Import Service
+import { AutoTaggingService } from './auto-tagging.service';
 
 @Injectable()
 export class BookmarksService {
@@ -21,13 +21,13 @@ export class BookmarksService {
     private bookmarkRepository: Repository<Bookmark>,
     @InjectRepository(Tag)
     private tagRepository: Repository<Tag>,
-    private autoTaggingService: AutoTaggingService, // <--- 2. Inject Service
+    private autoTaggingService: AutoTaggingService,
   ) {}
 
   async create(createBookmarkDto: CreateBookmarkDto, userId: string) {
     const { url, tags, ...rest } = createBookmarkDto;
 
-    // 1. Check if Bookmark exists for THIS user
+    // Check if Bookmark exists for THIS user
     const existingBookmark = await this.bookmarkRepository.findOne({
       where: { url, user: { id: userId } },
     });
@@ -36,8 +36,8 @@ export class BookmarksService {
       throw new ConflictException('You have already bookmarked this URL.');
     }
 
-    // --- AUTO TAGGING LOGIC START ---
-    let finalTags = tags || []; // Default to empty array if undefined
+    // --- AUTO TAGGING LOGIC ---
+    let finalTags = tags || [];
     let finalTitle = rest.title;
 
     // If no tags were provided, try to auto-generate them
@@ -56,22 +56,20 @@ export class BookmarksService {
       } catch (error) {
         // If AI fails, log it but don't stop the bookmark creation.
 
-        // FIX: Check if it's a real Error object before accessing .message
         const errorMessage =
           error instanceof Error ? error.message : String(error);
 
         this.logger.warn(`Auto-tagging failed: ${errorMessage}`);
       }
     }
-    // --- AUTO TAGGING LOGIC END ---
 
-    // 2. Resolve Tags (User-Scoped) using the "finalTags" variable
+    // Resolve Tags (User-Scoped) using the "finalTags" variable
     const tagEntities = await this.preloadTagsByName(finalTags, userId);
 
     const bookmark = this.bookmarkRepository.create({
       url,
       ...rest,
-      title: finalTitle, // Use the potentially updated title
+      title: finalTitle,
       user: { id: userId },
       tags: tagEntities,
     });
