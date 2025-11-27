@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   ConflictException,
+  Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -9,14 +10,18 @@ import { CreateBookmarkDto } from './dto/create-bookmark.dto';
 import { UpdateBookmarkDto } from './dto/update-bookmark.dto';
 import { Bookmark } from './entities/bookmark.entity';
 import { Tag } from '../tags/entities/tag.entity';
+import { AutoTaggingService } from './auto-tagging.service'; // <--- 1. Import Service
 
 @Injectable()
 export class BookmarksService {
+  private readonly logger = new Logger(BookmarksService.name);
+
   constructor(
     @InjectRepository(Bookmark)
     private bookmarkRepository: Repository<Bookmark>,
     @InjectRepository(Tag)
     private tagRepository: Repository<Tag>,
+    private autoTaggingService: AutoTaggingService, // <--- 2. Inject Service
   ) {}
 
   async create(createBookmarkDto: CreateBookmarkDto, userId: string) {
@@ -31,12 +36,42 @@ export class BookmarksService {
       throw new ConflictException('You have already bookmarked this URL.');
     }
 
-    // 2. Resolve Tags (User-Scoped)
-    const tagEntities = await this.preloadTagsByName(tags, userId);
+    // --- AUTO TAGGING LOGIC START ---
+    let finalTags = tags || []; // Default to empty array if undefined
+    let finalTitle = rest.title;
+
+    // If no tags were provided, try to auto-generate them
+    if (finalTags.length === 0) {
+      try {
+        this.logger.log(`Auto-tagging triggered for: ${url}`);
+        const aiResult = await this.autoTaggingService.generateTags(url);
+
+        // Use AI tags
+        finalTags = aiResult.tags;
+
+        // If user didn't provide a title, use the one found by scraping
+        if (!finalTitle) {
+          finalTitle = aiResult.title;
+        }
+      } catch (error) {
+        // If AI fails, log it but don't stop the bookmark creation.
+
+        // FIX: Check if it's a real Error object before accessing .message
+        const errorMessage =
+          error instanceof Error ? error.message : String(error);
+
+        this.logger.warn(`Auto-tagging failed: ${errorMessage}`);
+      }
+    }
+    // --- AUTO TAGGING LOGIC END ---
+
+    // 2. Resolve Tags (User-Scoped) using the "finalTags" variable
+    const tagEntities = await this.preloadTagsByName(finalTags, userId);
 
     const bookmark = this.bookmarkRepository.create({
       url,
       ...rest,
+      title: finalTitle, // Use the potentially updated title
       user: { id: userId },
       tags: tagEntities,
     });
@@ -94,7 +129,6 @@ export class BookmarksService {
     tagNames: string[] | undefined,
     userId: string,
   ): Promise<Tag[]> {
-    // This check handles the undefined case safely
     if (!tagNames || tagNames.length === 0) {
       return [];
     }
@@ -102,16 +136,19 @@ export class BookmarksService {
     const entities: Tag[] = [];
 
     for (const tagName of tagNames) {
+      // Normalize tag: lowercase and trim to prevent "React" vs "react"
+      const cleanName = tagName.trim().toLowerCase();
+
       let tag = await this.tagRepository.findOne({
         where: {
-          name: tagName,
+          name: cleanName,
           user: { id: userId },
         },
       });
 
       if (!tag) {
         tag = this.tagRepository.create({
-          name: tagName,
+          name: cleanName,
           user: { id: userId },
         });
         await this.tagRepository.save(tag);

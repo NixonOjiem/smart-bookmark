@@ -52,3 +52,17 @@ API security ensured through JWT
 
 1. Using Authcontext to capture user state upon login
 2. Route security ensured through user context and statemanagement
+
+## Machine Learning Feature
+
+# Dependencies
+
+1. Cheerio/Axios: To scrape the website content.
+2. keyword-extractor: For statistical text analysis and stop-word removal.
+
+# NLP Pipeline
+
+1. If bookmark created without tags then AutoTaggingService is triggered
+2. Scrapping Layer: Cheerio and axios is used to scrap the site adn fetch title and meta data
+3. Filtering: Filters by part-of-speech to prioritize Nouns and Adjectives
+4. Tag Generation
