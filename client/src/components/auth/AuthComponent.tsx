@@ -155,6 +155,9 @@ function AuthComponent() {
           >
             {isLoading ? "Processing..." : isLogin ? "Sign in" : "Sign up"}
           </button>
+          <a href="forgot-password" className="text-center text-red-600">
+            Forgot Password!
+          </a>
         </form>
 
         <div className="text-center">

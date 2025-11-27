@@ -35,7 +35,7 @@ export class AuthService {
   async forgotPassword(email: string) {
     const user = await this.usersService.findOneByEmail(email);
     if (!user) {
-      // Security: Don't reveal if user exists. Just return success.
+      // Security: Not revealing if user is available.
       return { message: 'If that email exists, we sent a code.' };
     }
 
@@ -45,11 +45,6 @@ export class AuthService {
     // Set Expiry (15 mins from now)
     const expiry = new Date();
     expiry.setMinutes(expiry.getMinutes() + 15);
-
-    // Save to DB (We use the update method directly on repo in UsersService or do it here)
-    // For simplicity, assuming you injected UsersRepository here or added a helper in UsersService
-    // Ideally: await this.usersService.saveResetToken(user.id, code, expiry);
-    // Let's assume you added this method to UsersService:
     await this.usersService.setResetToken(user.id, code, expiry);
 
     // Send Email
@@ -60,26 +55,14 @@ export class AuthService {
 
   // STEP 2: Verify & Reset
   async resetPassword(email: string, code: string, newPassword: string) {
-    // FIX 1: Explicitly type the user variable using the Entity
     const user: User | null = await this.usersService.findOneByEmail(email);
-    console.log('--------------------------------');
-    console.log('Reset Attempt for:', email);
-    console.log('Input Code:', code);
-    console.log('DB Stored Code:', user?.resetToken);
-    console.log('Current Time:', new Date());
-    console.log('Expiry Time:', user?.resetTokenExpiry);
-    console.log('Match?', user?.resetToken === code);
-    // console.log('Expired?', new Date() > user?.resetTokenExpiry);
-    console.log('--------------------------------');
+
     if (
       !user ||
       user.resetToken !== code ||
-      // Ensure resetTokenExpiry exists before comparing
       !user.resetTokenExpiry ||
       new Date() > user.resetTokenExpiry
     ) {
-      // This "Unsafe construction" error disappears when 'user' is typed,
-      // because the compiler now understands the flow control properly.
       throw new BadRequestException('Invalid or expired reset code');
     }
 
@@ -87,8 +70,6 @@ export class AuthService {
     const salt = await bcrypt.genSalt();
     const hash = await bcrypt.hash(newPassword, salt);
 
-    // FIX 2: Since 'user' is now strictly typed, TypeScript knows user.id is valid.
-    // The "Unsafe call" error disappears because TS confirms usersService is not 'any'.
     await this.usersService.updatePasswordAndClearToken(user.id, hash);
 
     // Auto-Login: Generate Token
