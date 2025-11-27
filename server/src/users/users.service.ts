@@ -48,7 +48,16 @@ export class UsersService {
   async findOneByEmail(email: string): Promise<User | null> {
     return this.usersRepository.findOne({
       where: { email },
-      select: ['id', 'email', 'name', 'password', 'role', 'createdAt'],
+      select: [
+        'id',
+        'email',
+        'name',
+        'password',
+        'role',
+        'createdAt',
+        'resetToken',
+        'resetTokenExpiry',
+      ],
     });
   }
   // update user password
@@ -80,5 +89,19 @@ export class UsersService {
       throw new NotFoundException(`User #${id} not found`);
     }
     await this.usersRepository.delete(id);
+  }
+  async setResetToken(userId: string, code: string, expiry: Date) {
+    await this.usersRepository.update(userId, {
+      resetToken: code,
+      resetTokenExpiry: expiry,
+    });
+  }
+  async updatePasswordAndClearToken(userId: string, newHash: string) {
+    // logic: update password, set token to null, set expiry to null
+    await this.usersRepository.update(userId, {
+      password: newHash,
+      resetToken: null,
+      resetTokenExpiry: null,
+    });
   }
 }
