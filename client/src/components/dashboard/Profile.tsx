@@ -88,7 +88,7 @@ function Profile() {
     setIsSaving(true);
 
     try {
-      // Call the PATCH endpoint (We will implement this in backend next)
+      // the PATCH endpoint
       const res = await fetch(`${baseUrl}/users/${user?.id}`, {
         method: "PATCH",
         headers: {

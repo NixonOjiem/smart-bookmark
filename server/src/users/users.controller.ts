@@ -44,7 +44,7 @@ export class UsersController {
   }
 
   @Delete(':id')
-  @Roles('admin') // <--- CRITICAL: Only Admins can delete users
+  @Roles('admin') // Only Admins can delete users
   remove(@Param('id') id: string) {
     return this.usersService.remove(id);
   }
