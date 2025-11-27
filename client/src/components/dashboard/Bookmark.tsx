@@ -8,9 +8,11 @@ import {
   faExternalLinkAlt,
   faTag,
   faPlus,
+  faSearch,
+  faTimes, // 'X' icon
 } from "@fortawesome/free-solid-svg-icons";
 
-// Define Bookmark based of Backend
+// Define Bookmark based on Backend
 interface Bookmark {
   id: string;
   title?: string;
@@ -21,24 +23,21 @@ interface Bookmark {
 }
 
 function BookmarksPage() {
-  // Get token from UseAUth
   const { token } = useAuth();
   const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
-  // State
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
 
-  // Form State
   const [formData, setFormData] = useState({
     url: "",
     title: "",
-    tagString: "", // comma seperated
+    tagString: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // 1. Fetch Bookmarks on Mount
   useEffect(() => {
     if (token) fetchBookmarks();
   }, [token]);
@@ -59,13 +58,24 @@ function BookmarksPage() {
     }
   };
 
-  // 2. Handle Create Bookmark
+  // FILTER LOGIC using title, url, and tag
+  const filteredBookmarks = bookmarks.filter((b) => {
+    const lowerTerm = searchTerm.toLowerCase();
+    const matchTitle = b.title?.toLowerCase().includes(lowerTerm);
+    const matchUrl = b.url.toLowerCase().includes(lowerTerm);
+    // Check if ANY of the tags match the search term
+    const matchTags = b.tags?.some((t) =>
+      t.name.toLowerCase().includes(lowerTerm)
+    );
+
+    return matchTitle || matchUrl || matchTags;
+  });
+  // Add bookmarks
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError("");
 
-    // Convert "react, css, frontend" -> ["react", "css", "frontend"]
     const tagsArray = formData.tagString
       .split(",")
       .map((tag) => tag.trim())
@@ -81,7 +91,7 @@ function BookmarksPage() {
         body: JSON.stringify({
           url: formData.url,
           title: formData.title,
-          tags: tagsArray, // sending array of strings
+          tags: tagsArray,
         }),
       });
 
@@ -91,11 +101,7 @@ function BookmarksPage() {
       }
 
       const newBookmark = await res.json();
-
-      // Update UI immediately (Optimistic UI or re-fetch)
       setBookmarks([newBookmark, ...bookmarks]);
-
-      // Reset Form
       setFormData({ url: "", title: "", tagString: "" });
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -108,16 +114,56 @@ function BookmarksPage() {
     }
   };
 
-  // 3. Handle Delete
+  //  Remove tag from bookmark
+  const handleRemoveTag = async (bookmarkId: string, tagIdToRemove: number) => {
+    // Find the bookmark
+    const bookmark = bookmarks.find((b) => b.id === bookmarkId);
+    if (!bookmark || !bookmark.tags) return;
+    // Calculate the NEW list of tags after removal
+    // backend expects an array of list
+    const remainingTags = bookmark.tags
+      .filter((t) => t.id !== tagIdToRemove)
+      .map((t) => t.name);
+
+    // Update UI Optimistically
+    setBookmarks((prev) =>
+      prev.map((b) =>
+        b.id === bookmarkId
+          ? { ...b, tags: b.tags?.filter((t) => t.id !== tagIdToRemove) }
+          : b
+      )
+    );
+
+    // Send Update to Backend
+    try {
+      const res = await fetch(`${baseUrl}/bookmarks/${bookmarkId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          tags: remainingTags,
+        }),
+      });
+
+      if (!res.ok) throw new Error("Failed to update tags");
+    } catch (err) {
+      console.error(err);
+      setError("Failed to remove tag. Please refresh.");
+
+      fetchBookmarks();
+    }
+  };
+
+  // Deleting a bookmark
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this bookmark?")) return;
-
     try {
       const res = await fetch(`${baseUrl}/bookmarks/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
-
       if (res.ok) {
         setBookmarks(bookmarks.filter((b) => b.id !== id));
       }
@@ -130,11 +176,26 @@ function BookmarksPage() {
     return <div className="p-8 text-center">Loading your library...</div>;
 
   return (
-    <div className="max-w-5xl mx-auto">
-      <h1 className="text-3xl font-bold text-gray-800 mb-8">My Library</h1>
+    <div className="max-w-5xl mx-auto space-y-8">
+      <h1 className="text-3xl font-bold text-gray-800">My Library</h1>
 
-      {/* ---  FORM --- */}
-      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-10">
+      {/* --- SEARCH BAR --- */}
+      <div className="relative">
+        <FontAwesomeIcon
+          icon={faSearch}
+          className="absolute left-4 top-3.5 text-gray-400"
+        />
+        <input
+          type="text"
+          placeholder="Search by title, url, or #tag..."
+          className="w-full pl-10 pr-4 py-3 border rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 outline-none"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
+
+      {/* --- ADD FORM --- */}
+      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
         <h2 className="text-lg font-semibold mb-4 text-gray-700">
           Add New Bookmark
         </h2>
@@ -145,7 +206,6 @@ function BookmarksPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* URL Input */}
             <input
               type="url"
               placeholder="Paste URL here (https://...)"
@@ -156,7 +216,6 @@ function BookmarksPage() {
                 setFormData({ ...formData, url: e.target.value })
               }
             />
-            {/* Title Input */}
             <input
               type="text"
               placeholder="Title (Optional)"
@@ -168,7 +227,6 @@ function BookmarksPage() {
             />
           </div>
 
-          {/* Tags Input */}
           <div className="relative">
             <FontAwesomeIcon
               icon={faTag}
@@ -176,7 +234,7 @@ function BookmarksPage() {
             />
             <input
               type="text"
-              placeholder="Tags (comma separated, e.g: design, productivity, ai)"
+              placeholder="Tags (comma separated, e.g: design, productivity)"
               className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
               value={formData.tagString}
               onChange={(e) =>
@@ -203,12 +261,12 @@ function BookmarksPage() {
 
       {/* --- BOOKMARK LIST --- */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {bookmarks.length === 0 ? (
+        {filteredBookmarks.length === 0 ? (
           <p className="text-gray-500 col-span-full text-center py-10">
-            No bookmarks yet. Add your first one above!
+            {searchTerm ? "No results found." : "No bookmarks yet."}
           </p>
         ) : (
-          bookmarks.map((bookmark) => (
+          filteredBookmarks.map((bookmark) => (
             <div
               key={bookmark.id}
               className="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow flex flex-col justify-between h-full"
@@ -243,15 +301,23 @@ function BookmarksPage() {
                 </a>
               </div>
 
-              {/* Tags Section */}
+              {/* Tags Section with Remove Button */}
               <div className="mt-4 flex flex-wrap gap-2">
                 {bookmark.tags && bookmark.tags.length > 0 ? (
                   bookmark.tags.map((tag) => (
                     <span
                       key={tag.id}
-                      className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-md font-medium"
+                      className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-md font-medium flex items-center gap-1 group"
                     >
                       #{tag.name}
+                      {/* Remove Tag Button (Hidden until hover) */}
+                      <button
+                        onClick={() => handleRemoveTag(bookmark.id, tag.id)}
+                        className="ml-1 text-gray-400 hover:text-red-500 focus:outline-none opacity-0 group-hover:opacity-100 transition-opacity"
+                        title="Remove tag"
+                      >
+                        <FontAwesomeIcon icon={faTimes} />
+                      </button>
                     </span>
                   ))
                 ) : (
