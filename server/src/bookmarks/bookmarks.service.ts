@@ -99,19 +99,19 @@ export class BookmarksService {
     updateBookmarkDto: UpdateBookmarkDto,
     userId: string,
   ) {
-    // 1. Load the existing bookmark
+    // Load the existing bookmark
     const bookmark = await this.findOne(id, userId);
 
-    // 2. Separate tags from the rest of the data
+    // Separate tags from the rest of the data
     const { tags, ...rest } = updateBookmarkDto;
 
-    // 3. If tags are being updated, resolve them to Entities
+    // If tags are being updated, resolve them to Entities
     if (tags) {
       const tagEntities = await this.preloadTagsByName(tags, userId);
       bookmark.tags = tagEntities;
     }
 
-    // 4. Update other fields
+    // Update other fields
     Object.assign(bookmark, rest);
 
     return this.bookmarkRepository.save(bookmark);

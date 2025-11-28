@@ -37,7 +37,7 @@ export class Bookmark {
   userId: string; // for API filtering
 
   // Relation: Many-to-Many with Tags
-  @ManyToMany(() => Tag, (tag) => tag.bookmarks, { cascade: true })
+  @ManyToMany(() => Tag, (tag) => tag.bookmarks, { onDelete: 'CASCADE' })
   @JoinTable() // This creates the pivot table (bookmark_tags) automatically
   tags: Tag[];
 }

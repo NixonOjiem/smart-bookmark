@@ -12,7 +12,7 @@ interface ResetResponse {
 
 // --- MOCKS ---
 
-// 1. Mock AuthContext
+// Mock AuthContext
 const mockLogin = jest.fn();
 jest.mock("../context/AuthContext", () => ({
   useAuth: () => ({
@@ -20,15 +20,14 @@ jest.mock("../context/AuthContext", () => ({
   }),
 }));
 
-// 2. Mock Next.js Navigation
-// (Even though logic uses Link, useRouter is initialized in the component)
+// Mock Next.js Navigation
 jest.mock("next/navigation", () => ({
   useRouter: () => ({
     push: jest.fn(),
   }),
 }));
 
-// 3. Mock Fetch
+// Mock Fetch
 global.fetch = jest.fn() as unknown as jest.Mock;
 
 describe("ForgotPassword Component", () => {
@@ -54,7 +53,7 @@ describe("ForgotPassword Component", () => {
       screen.getByRole("button", { name: /send code/i })
     ).toBeInTheDocument();
 
-    // Ensure Step 2 inputs are hidden
+    // Step 2 inputs are hidden
     expect(screen.queryByPlaceholderText(/123456/i)).not.toBeInTheDocument();
   });
 
@@ -118,22 +117,21 @@ describe("ForgotPassword Component", () => {
       expect(screen.getByText(/something went wrong/i)).toBeInTheDocument();
     });
 
-    // Ensure we stayed on Step 1
+    // Ensure stay on step one
     expect(screen.queryByPlaceholderText(/123456/i)).not.toBeInTheDocument();
   });
 
   it("handles Step 2 submission successfully (Reset & Login)", async () => {
-    // We need to chain two mock responses:
-    // 1. Success for "Request Code"
-    // 2. Success for "Reset Password"
+    // Success for "Request Code"
+    // Success for "Reset Password"
     const mockLoginResponse: ResetResponse = {
       access_token: "new_token_789",
       user: { id: "1", email: "test@example.com" },
     };
 
     (global.fetch as jest.Mock)
-      .mockResolvedValueOnce({ ok: true, json: async () => ({}) }) // Step 1 response
-      .mockResolvedValueOnce({ ok: true, json: async () => mockLoginResponse }); // Step 2 response
+      .mockResolvedValueOnce({ ok: true, json: async () => ({}) })
+      .mockResolvedValueOnce({ ok: true, json: async () => mockLoginResponse });
 
     render(<ForgotPassword />);
 
@@ -166,7 +164,7 @@ describe("ForgotPassword Component", () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            email: "test@example.com", // Should persist from Step 1
+            email: "test@example.com",
             code: "999999",
             newPassword: "newPassword123",
           }),

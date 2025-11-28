@@ -29,8 +29,8 @@ jest.mock("../context/AuthContext", () => ({
 }));
 
 // Mock global fetch
-// We cast to 'unknown' first to bypass the native fetch type signature,
-// then to 'jest.Mock' so we can use .mockResolvedValue
+// Cast to 'unknown' first to bypass the native fetch type signature,
+// then to 'jest.Mock' to use .mockResolvedValue
 global.fetch = jest.fn() as unknown as jest.Mock;
 
 describe("AuthComponent", () => {
@@ -85,7 +85,7 @@ describe("AuthComponent", () => {
 
     render(<AuthComponent />);
 
-    // Cast the elements to HTMLInputElement to ensure 'target.value' is valid type-wise
+    // Cast the elements to HTMLInputElement
     const emailInput = screen.getByPlaceholderText(
       /email/i
     ) as HTMLInputElement;

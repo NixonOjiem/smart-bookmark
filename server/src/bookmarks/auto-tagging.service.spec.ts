@@ -6,7 +6,7 @@ import axios, {
   AxiosHeaders,
 } from 'axios';
 
-// 1. Mock Axios globally
+//  Mock Axios globally
 jest.mock('axios');
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
@@ -29,7 +29,7 @@ describe('AutoTaggingService', () => {
   // --- TEST 1: HAPPY PATH ---
   describe('generateTags', () => {
     it('should scrape title/description and return extracted tags', async () => {
-      // A. Setup Mock HTML Response
+      // Setup Mock HTML Response
       const mockHtml = `
         <html>
           <head>
@@ -39,8 +39,6 @@ describe('AutoTaggingService', () => {
         </html>
       `;
 
-      // FIX: Create a typed response object.
-      // We use Partial<AxiosResponse> and cast it to satisfy the compiler safely
       const mockResponse: Partial<AxiosResponse> = {
         data: mockHtml,
         status: 200,
@@ -54,7 +52,7 @@ describe('AutoTaggingService', () => {
       // Tell axios: "When someone calls .get, return this HTML"
       mockedAxios.get.mockResolvedValue(mockResponse as AxiosResponse);
 
-      // B. Run the function
+      // Run the function
       const result = await service.generateTags('https://nestjs.com');
 
       // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -76,13 +74,13 @@ describe('AutoTaggingService', () => {
   // --- TEST 2: SAD PATH (Scraping Fails) ---
   describe('Error Handling', () => {
     it('should return empty title and empty tags if scraping fails', async () => {
-      // A. Mock Axios Error
+      // Mock Axios Error
       mockedAxios.get.mockRejectedValue(new Error('Network Error'));
 
-      // B. Run function
+      // Run function
       const result = await service.generateTags('https://bad-url.com');
 
-      // C. Assertions
+      // Assertions
       expect(result.title).toBe('');
       expect(result.tags).toEqual(['uncategorized']);
     });
@@ -91,7 +89,6 @@ describe('AutoTaggingService', () => {
   // --- TEST 3: EMPTY CONTENT ---
   describe('Empty Content', () => {
     it('should handle websites with no relevant text', async () => {
-      // FIX: Typed response for empty content
       const mockResponse: Partial<AxiosResponse> = {
         data: '<html><head></head><body></body></html>',
         status: 200,

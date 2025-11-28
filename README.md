@@ -66,3 +66,13 @@ API security ensured through JWT
 2. Scrapping Layer: Cheerio and axios is used to scrap the site adn fetch title and meta data
 3. Filtering: Filters by part-of-speech to prioritize Nouns and Adjectives
 4. Tag Generation: Selects top 5 words
+
+## Testing using Jest
+
+# Frontend
+
+1. npm test: Run all the test
+
+# Backend
+
+1. npx jest: Run all the test

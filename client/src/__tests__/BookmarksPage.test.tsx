@@ -33,11 +33,12 @@ jest.mock("@fortawesome/react-fontawesome", () => ({
   FontAwesomeIcon: () => <span data-testid="fa-icon">icon</span>,
 }));
 
+// Mock Global Fetch
 global.fetch = jest.fn() as unknown as jest.Mock;
-global.confirm = jest.fn(() => true);
 
 describe("BookmarksPage", () => {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
+  let confirmSpy: jest.SpyInstance;
+  let alertSpy: jest.SpyInstance;
 
   const mockBookmarks: Bookmark[] = [
     {
@@ -59,8 +60,14 @@ describe("BookmarksPage", () => {
   beforeEach(() => {
     jest.resetAllMocks();
 
+    // Mock window methods securely
+    confirmSpy = jest.spyOn(window, "confirm").mockImplementation(() => true);
+    alertSpy = jest.spyOn(window, "alert").mockImplementation(() => {});
+
+    // Fetch Implementation
     (global.fetch as jest.Mock).mockImplementation(async (url, options) => {
-      const method = options?.method || "GET";
+      // Safely handle method casing (DELETE vs delete)
+      const method = options?.method ? options.method.toUpperCase() : "GET";
 
       // Handle DELETE
       if (method === "DELETE") {
@@ -69,7 +76,6 @@ describe("BookmarksPage", () => {
 
       // Handle POST
       if (method === "POST") {
-        // Return a dummy new bookmark
         return {
           ok: true,
           json: async () => ({
@@ -92,7 +98,12 @@ describe("BookmarksPage", () => {
     });
   });
 
-  // TEST 1: Loading & Display
+  afterEach(() => {
+    // Clean up spies
+    jest.restoreAllMocks();
+  });
+
+  // Loading & Display
   it("fetches and displays bookmarks on load", async () => {
     render(<BookmarksPage />);
     expect(screen.getByText(/loading your library/i)).toBeInTheDocument();
@@ -103,7 +114,7 @@ describe("BookmarksPage", () => {
     });
   });
 
-  // TEST 2: Searching
+  // Searching
   it("filters bookmarks by search term", async () => {
     render(<BookmarksPage />);
     await waitFor(() =>
@@ -117,8 +128,9 @@ describe("BookmarksPage", () => {
     expect(screen.queryByText("Next.js Docs")).not.toBeInTheDocument();
   });
 
-  // TEST 3: Adding Bookmark
+  // Adding Bookmark
   it("successfully adds a new bookmark", async () => {
+    // Override mock strictly for this test to start with empty list
     (global.fetch as jest.Mock).mockImplementationOnce(async () => ({
       ok: true,
       json: async () => [],
@@ -146,7 +158,7 @@ describe("BookmarksPage", () => {
     });
   });
 
-  // TEST 4: Deleting Bookmark
+  // Deleting Bookmark
   it("deletes a bookmark after confirmation", async () => {
     render(<BookmarksPage />);
     await waitFor(() =>
@@ -156,18 +168,29 @@ describe("BookmarksPage", () => {
     // Locate the Delete button inside the card
     const titleElement = screen.getByText("React Docs");
     const card = titleElement.closest(".bg-white") as HTMLElement;
+    // The trash button is the first button inside the card's container
     const deleteBtn = within(card).getAllByRole("button")[0];
 
     fireEvent.click(deleteBtn);
 
-    expect(global.confirm).toHaveBeenCalled();
+    // Verify Confirm was called
+    expect(confirmSpy).toHaveBeenCalled();
 
+    // Verify API was called
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledWith(
+        expect.stringContaining("/bookmarks/1"),
+        expect.objectContaining({ method: "DELETE" })
+      );
+    });
+
+    // Verify UI updated
     await waitFor(() => {
       expect(screen.queryByText("React Docs")).not.toBeInTheDocument();
     });
   });
 
-  // TEST 5: Removing Tag
+  // Removing Tag
   it("removes a tag from a bookmark", async () => {
     render(<BookmarksPage />);
     await waitFor(() =>

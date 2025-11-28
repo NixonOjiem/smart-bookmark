@@ -21,6 +21,8 @@ export class Tag {
   @ManyToOne(() => User, (user) => user.tags, { onDelete: 'CASCADE' })
   user: User;
 
-  @ManyToMany(() => Bookmark, (bookmark) => bookmark.tags)
+  @ManyToMany(() => Bookmark, (bookmark) => bookmark.tags, {
+    onDelete: 'CASCADE',
+  })
   bookmarks: Bookmark[];
 }
