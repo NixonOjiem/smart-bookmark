@@ -71,20 +71,22 @@ run this in the root direcory: docker-compose up -d .
 ### server/.env.local
 
 #DB
-POSTGRES_HOST=localhost
-POSTGRES_PORT=5434
-POSTGRES_USER=user
-POSTGRES_PASSWORD=password123
-POSTGRES_DB=bookmark_manager
-JWT_SECRET=YOUR_JWT_SECRET
+
+1. POSTGRES_HOST=localhost
+2. POSTGRES_PORT=5434
+3. POSTGRES_USER=user
+4. POSTGRES_PASSWORD=password123
+5. POSTGRES_DB=bookmark_manager
+6. JWT_SECRET=YOUR_JWT_SECRET
 
 #SMTP Config
-MAIL_HOST=smtp.gmail.com
-MAIL_USER=your_gmail
-MAIL_PASS=Your_16_character_password_generated_from_gmail_apps
-MAIL_FROM="SmartMarks Support <your_gmail>"
 
-2. create a .env file in your client directory:
+1. MAIL_HOST=smtp.gmail.com
+2. MAIL_USER=your_gmail
+3. MAIL_PASS=Your_16_character_password_generated_from_gmail_apps
+4. MAIL_FROM="SmartMarks Support <your_gmail>"
+
+5. create a .env file in your client directory:
 
 ### client/.env.local
 
