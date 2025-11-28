@@ -19,6 +19,7 @@ interface Bookmark {
   id: string;
   title: string;
   url: string;
+  description?: string;
   tags: Tag[];
   createdAt: string;
 }
@@ -40,11 +41,13 @@ describe("BookmarksPage", () => {
   let confirmSpy: jest.SpyInstance;
   let alertSpy: jest.SpyInstance;
 
+  // Added descriptions to mock data
   const mockBookmarks: Bookmark[] = [
     {
       id: "1",
       title: "React Docs",
       url: "https://react.dev",
+      description: "The official library for web and native user interfaces",
       tags: [{ id: 101, name: "frontend" }],
       createdAt: "2023-01-01",
     },
@@ -52,6 +55,7 @@ describe("BookmarksPage", () => {
       id: "2",
       title: "Next.js Docs",
       url: "https://nextjs.org",
+      description: "The React Framework for the Web",
       tags: [{ id: 102, name: "backend" }],
       createdAt: "2023-01-02",
     },
@@ -66,7 +70,6 @@ describe("BookmarksPage", () => {
 
     // Fetch Implementation
     (global.fetch as jest.Mock).mockImplementation(async (url, options) => {
-      // Safely handle method casing (DELETE vs delete)
       const method = options?.method ? options.method.toUpperCase() : "GET";
 
       // Handle DELETE
@@ -76,12 +79,15 @@ describe("BookmarksPage", () => {
 
       // Handle POST
       if (method === "POST") {
+        // Parse the body to echo back the description
+        const body = JSON.parse(options.body);
         return {
           ok: true,
           json: async () => ({
             id: "99",
-            title: "New Site",
-            url: "https://new.com",
+            title: body.title || "New Site",
+            url: body.url,
+            description: body.description,
             tags: [],
             createdAt: new Date().toISOString(),
           }),
@@ -99,18 +105,22 @@ describe("BookmarksPage", () => {
   });
 
   afterEach(() => {
-    // Clean up spies
     jest.restoreAllMocks();
   });
 
   // Loading & Display
-  it("fetches and displays bookmarks on load", async () => {
+  it("fetches and displays bookmarks with descriptions on load", async () => {
     render(<BookmarksPage />);
     expect(screen.getByText(/loading your library/i)).toBeInTheDocument();
 
     await waitFor(() => {
       expect(screen.getByText("React Docs")).toBeInTheDocument();
-      expect(screen.getByText("Next.js Docs")).toBeInTheDocument();
+      // Check if description renders
+      expect(
+        screen.getByText(
+          "The official library for web and native user interfaces"
+        )
+      ).toBeInTheDocument();
     });
   });
 
@@ -121,7 +131,7 @@ describe("BookmarksPage", () => {
       expect(screen.getByText("React Docs")).toBeInTheDocument()
     );
 
-    const searchInput = screen.getByPlaceholderText(/search by title/i);
+    const searchInput = screen.getByPlaceholderText(/search by title, desc/i);
     fireEvent.change(searchInput, { target: { value: "frontend" } });
 
     expect(screen.getByText("React Docs")).toBeInTheDocument();
@@ -129,7 +139,7 @@ describe("BookmarksPage", () => {
   });
 
   // Adding Bookmark
-  it("successfully adds a new bookmark", async () => {
+  it("successfully adds a new bookmark with description", async () => {
     // Override mock strictly for this test to start with empty list
     (global.fetch as jest.Mock).mockImplementationOnce(async () => ({
       ok: true,
@@ -141,12 +151,18 @@ describe("BookmarksPage", () => {
       expect(screen.getByText(/no bookmarks yet/i)).toBeInTheDocument()
     );
 
-    fireEvent.change(screen.getByPlaceholderText("Title (Optional)"), {
+    fireEvent.change(screen.getByPlaceholderText("Title"), {
       target: { value: "New Site" },
     });
     fireEvent.change(screen.getByPlaceholderText(/paste url/i), {
       target: { value: "https://new.com" },
     });
+
+    // Fill the description textarea
+    fireEvent.change(screen.getByPlaceholderText(/description/i), {
+      target: { value: "My custom notes" },
+    });
+
     fireEvent.change(screen.getByPlaceholderText(/tags/i), {
       target: { value: "cool" },
     });
@@ -155,6 +171,8 @@ describe("BookmarksPage", () => {
 
     await waitFor(() => {
       expect(screen.getByText("New Site")).toBeInTheDocument();
+      // Verify description appears
+      expect(screen.getByText("My custom notes")).toBeInTheDocument();
     });
   });
 
@@ -165,18 +183,16 @@ describe("BookmarksPage", () => {
       expect(screen.getByText("React Docs")).toBeInTheDocument()
     );
 
-    // Locate the Delete button inside the card
     const titleElement = screen.getByText("React Docs");
+    // Find the closest card container
     const card = titleElement.closest(".bg-white") as HTMLElement;
-    // The trash button is the first button inside the card's container
+    // The trash button is inside the card
     const deleteBtn = within(card).getAllByRole("button")[0];
 
     fireEvent.click(deleteBtn);
 
-    // Verify Confirm was called
     expect(confirmSpy).toHaveBeenCalled();
 
-    // Verify API was called
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalledWith(
         expect.stringContaining("/bookmarks/1"),
@@ -184,7 +200,6 @@ describe("BookmarksPage", () => {
       );
     });
 
-    // Verify UI updated
     await waitFor(() => {
       expect(screen.queryByText("React Docs")).not.toBeInTheDocument();
     });

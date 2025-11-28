@@ -86,7 +86,7 @@ run this in the root direcory: docker-compose up -d .
 3. MAIL_PASS=Your_16_character_password_generated_from_gmail_apps
 4. MAIL_FROM="SmartMarks Support <your_gmail>"
 
-5. create a .env file in your client directory:
+create a .env file in your client directory:
 
 ### client/.env.local
 
