@@ -68,7 +68,7 @@ run this in the root direcory: docker-compose up -d .
 
 1. create a .env file in the server directory with the following credentials
 
-### server/.env.local
+### server/.env
 
 #DB
 
@@ -83,12 +83,12 @@ run this in the root direcory: docker-compose up -d .
 
 1. MAIL_HOST=smtp.gmail.com
 2. MAIL_USER=your_gmail
-3. MAIL_PASS=Your_16_character_password_generated_from_gmail_apps
+3. MAIL_PASS=Your_16_character_password_generated_from_gmail_apps_Standard_email_Password_will_not_work
 4. MAIL_FROM="SmartMarks Support <your_gmail>"
 
 create a .env file in your client directory:
 
-### client/.env.local
+### client/.env
 
 NEXT_PUBLIC_API_URL=http://localhost:4000/v1
 
