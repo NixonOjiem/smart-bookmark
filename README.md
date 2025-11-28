@@ -1,78 +1,150 @@
 # Smart Bookmark
 
-## PProject Structure
+A full-stack, intelligent web application created to effectively manage, arrange, and retrieve your web bookmarks. It has a relational tagging system, strong user authentication, and an AI-driven auto-tagging engine that automatically creates pertinent tags by analyzing website content.
 
-- `client/` → Next.js application
-- `server/` → Nest.js application
+# Features
 
-## Get Started
+1. User Authentication using JWT tokens
+2. Bookmark Management: Create, Read, Update, and Delete (CRUD) bookmarks with titles, URLs, and descriptions.
+3. AI Auto-Tagging: scrapes metadata and keywords from URLs
+4. Search & Filtering
+5. Responsive UI
 
-# For the frontend (Next.js)
+# Tech Stack
 
-Go to terminal
+Frontend
+
+1. Framework: Next.js
+2. Styling: Tailwind
+3. State Management: React Context API
+
+Backend
+
+1. Framework: Nestjs
+2. ORM: TypeORM
+3. Database: PostgresQL 15
+4. Security: Passport.js and JWT Strategy
+
+# AI/NLP
+
+1. Scrapping: Cheerio & Axios
+2. Analysis: Keyword-extractor
+
+# DevOps
+
+1. Containerization: Docker and Docker Compose
+
+# Project Structure
+
+smart-bookmark/
+├── client/ # Next.js Frontend Application
+│ ├── src/
+│ ├── public/
+│ └── package.json
+├── server/ # NestJS Backend Application
+│ ├── src/
+│ ├── test/
+│ └── package.json
+└── docker-compose.yml # Database & Admin Panel configuration
+
+# Prerequisites
+
+Ensure you have:
+
+1. Nodejs installed
+2. Docker Desktop installed
+
+# Get Started
+
+# Part one
+
+1. Use docker to spin up pgAdmin and Database
+
+run this in the root direcory: docker-compose up -d 2.
+
+2. pgAdmin URL: http://localhost:5050 (Email: admin@admin.com / Pass: root)
+
+# part two
+
+1. create a .env file in the server directory with the following credentials
+
+# server/.env.local
+
+#DB
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5434
+POSTGRES_USER=user
+POSTGRES_PASSWORD=password123
+POSTGRES_DB=bookmark_manager
+JWT_SECRET=YOUR_JWT_SECRET
+
+#SMTP Config
+MAIL_HOST=smtp.gmail.com
+MAIL_USER=your_gmail
+MAIL_PASS=Your_16_character_password_generated_from_gmail_apps
+MAIL_FROM="SmartMarks Support <your_gmail>"
+
+2. create a .env file in your client directory:
+
+# client/.env.local
+
+NEXT_PUBLIC_API_URL=http://localhost:4000
+
+# Backend Setup
+
+cd server
+
+npm install
+npm run start:dev
+
+The server will start on http://localhost:4000
+
+# frontend setup
+
 cd client
 npm install
 npm run dev
 
-# For the backend (Nest.js)
+The client will start on http://localhost:3000.
 
-Go to terminal
+# AI & Auto-Tagging
+
+The ability of Smart Bookmark to automatically create tags in the absence of user input is one of its key features.
+
+Trigger: A bookmark with an empty tags field is submitted by the user
+
+Scraping Layer: Axios and Cheerio are used by the backend to retrieve the target URL's HTML. The <title> and <meta name="description"> are extracted.
+
+NLP Analysis: The keyword-extractor receives the content
+
+Common words (and, the, is, etc.) are eliminated using stop-word removal.
+
+Tag Generation: The bookmark's top five statistically significant keywords are chosen and saved as tags.
+
+# Architecture Decision
+
+Why Postgresql
+
+1. To keep relational integrity: Users have bookmarks and Bookmarks have tags
+2. Cascading Deletes: If a user is deleted then their bookmarks are deleted
+3. ACID Compliance: Ensures reliable transaction processing.
+
+Why TypeORM
+
+1. Security: Built-in protection against SQL Injection attacks.
+
+2. Flexibility: Database agnostic, allowing for easier switching of DBs if necessary in the future.
+
+# Testing
+
+I used Jest for testing across the entire stack
+
+# Backend tests:
+
 cd server
-npm install
-npm run start:dev
+npx jest
 
-# Using Postgresql
+# Frontend tests:
 
-For the following reasons
-
-1. The data is relational, users have bookmarks
-2. Enforce Data Integrity, No ophaned bookmarks
-3. Native Full Text search
-
-## Connecting to Database
-
-when in development: Use localhost, later when packaging for docker Use postgres
-
-# Using TypeORM on Nestjs
-
-1. Fast development
-2. No sql Injections
-
-## Backend
-
-API security ensured through JWT
-
-## Frontend
-
-# icons
-
-1. using fontawsome
-
-# State management
-
-1. Using Authcontext to capture user state upon login
-2. Route security ensured through user context and statemanagement
-
-## Machine Learning Feature
-
-# Dependencies
-
-1. Cheerio/Axios: To scrape the website content.
-2. keyword-extractor: For statistical text analysis and stop-word removal.
-
-# NLP Pipeline
-
-1. If bookmark created without tags then AutoTaggingService is triggered
-2. Scrapping Layer: Cheerio and axios is used to scrap the site adn fetch title and meta data
-3. Filtering: Filters by part-of-speech to prioritize Nouns and Adjectives
-4. Tag Generation: Selects top 5 words
-
-## Testing using Jest
-
-# Frontend
-
-1. npm test: Run all the test
-
-# Backend
-
-1. npx jest: Run all the test
+cd client
+npm test

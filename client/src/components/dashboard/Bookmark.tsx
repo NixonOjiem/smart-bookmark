@@ -72,6 +72,9 @@ function BookmarksPage() {
   });
   // Add bookmarks
   const handleSubmit = async (e: React.FormEvent) => {
+    if (!formData.title && !formData.url) {
+      alert("Enter title or URL");
+    }
     e.preventDefault();
     setIsSubmitting(true);
     setError("");
@@ -218,9 +221,10 @@ function BookmarksPage() {
             />
             <input
               type="text"
-              placeholder="Title (Optional)"
+              placeholder="Title"
               className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
               value={formData.title}
+              required
               onChange={(e) =>
                 setFormData({ ...formData, title: e.target.value })
               }
