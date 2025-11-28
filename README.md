@@ -32,7 +32,7 @@ Backend
 
 # DevOps
 
-1. Containerization: Docker and Docker Compose
+1. Containerization: Docker and Docker Compose for the database
 
 # Project Structure
 
@@ -141,11 +141,13 @@ I used Jest for testing across the entire stack
 # Backend tests:
 
 cd server
+
 npx jest
 
 # Frontend tests:
 
 cd client
+
 npm test
 
 # Production Roadmap
@@ -154,9 +156,18 @@ If this project were to move to a full-scale production environment, the followi
 
 1. Advanced AI Microservice: Replace the current `keyword-extractor` library with a dedicated Python microservice (using FastAPI and models like BERT or OPENAI) to provide deep-learning-based classification and semantic understanding of bookmark content.
 2. Enhanced Authentication: Implement OAuth2 and 2FA
-3. Infrastructure & DevOps: Establish a CI/CD pipeline using GitHub
-4. Performance Optimization: Use Redis to capture frequently accessed bookmarks
-5. Browser extension support.
+3. Rate limiting on API end points
+4. Infrastructure & DevOps: Establish a CI/CD pipeline using GitHub
+5. Performance Optimization: Use Redis to capture frequently accessed bookmarks
+6. Browser extension support.
+
+# Resources
+
+1. https://support.google.com/accounts/answer/185833
+2. https://nodemailer.com/usage/using-gmail/
+3. https://docs.nestjs.com/security/authentication
+4. [NestJS Documentation](https://docs.nestjs.com/)
+5. [Class Validator](https://github.com/typestack/class-validator)
 
 # Honesty Declaration
 
