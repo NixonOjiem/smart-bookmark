@@ -140,15 +140,15 @@ I used Jest for testing across the entire stack
 
 # Backend tests:
 
-cd server
+1. cd server
 
-npx jest
+2. npx jest
 
 # Frontend tests:
 
-cd client
+1. cd client
 
-npm test
+2. npm test
 
 # Production Roadmap
 
@@ -172,8 +172,9 @@ If this project were to move to a full-scale production environment, the followi
 # Honesty Declaration
 
 I confirm that this submission is my own work. I have:
-[ ] Not copied code from existing solutions or other candidates
-[ ] Used AI assistants only for syntax help and debugging specific errors
-[ ] Not received human help during the assignment period
-[ ] Built the core logic and architecture myself
-[ ] Cited any references used for specific solutions
+
+1. [ ] Not copied code from existing solutions or other candidates
+2. [ ] Used AI assistants only for syntax help and debugging specific errors
+3. [ ] Not received human help during the assignment period
+4. [ ] Built the core logic and architecture myself
+5. [ ] Cited any references used for specific solutions
