@@ -60,7 +60,7 @@ Ensure you have:
 
 1. Use docker to spin up pgAdmin and Database
 
-run this in the root direcory: docker-compose up -d 2.
+run this in the root direcory: docker-compose up -d .
 
 2. pgAdmin URL: http://localhost:5050 (Email: admin@admin.com / Pass: root)
 
@@ -68,7 +68,7 @@ run this in the root direcory: docker-compose up -d 2.
 
 1. create a .env file in the server directory with the following credentials
 
-# server/.env.local
+### server/.env.local
 
 #DB
 POSTGRES_HOST=localhost
@@ -86,7 +86,7 @@ MAIL_FROM="SmartMarks Support <your_gmail>"
 
 2. create a .env file in your client directory:
 
-# client/.env.local
+### client/.env.local
 
 NEXT_PUBLIC_API_URL=http://localhost:4000
 
