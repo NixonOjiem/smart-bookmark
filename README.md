@@ -148,3 +148,22 @@ npx jest
 
 cd client
 npm test
+
+# Production Roadmap
+
+If this project were to move to a full-scale production environment, the following enhancements would be prioritized:
+
+1. Advanced AI Microservice: Replace the current `keyword-extractor` library with a dedicated Python microservice (using FastAPI and models like BERT or OPENAI) to provide deep-learning-based classification and semantic understanding of bookmark content.
+2. Enhanced Authentication: Implement OAuth2 and 2FA
+3. Infrastructure & DevOps: Establish a CI/CD pipeline using GitHub
+4. Performance Optimization: Use Redis to capture frequently accessed bookmarks
+5. Browser extension support.
+
+# Honesty Declaration
+
+I confirm that this submission is my own work. I have:
+[ ] Not copied code from existing solutions or other candidates
+[ ] Used AI assistants only for syntax help and debugging specific errors
+[ ] Not received human help during the assignment period
+[ ] Built the core logic and architecture myself
+[ ] Cited any references used for specific solutions
