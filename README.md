@@ -88,22 +88,21 @@ MAIL_FROM="SmartMarks Support <your_gmail>"
 
 ### client/.env.local
 
-NEXT_PUBLIC_API_URL=http://localhost:4000
+NEXT_PUBLIC_API_URL=http://localhost:4000/v1
 
 # Backend Setup
 
-cd server
-
-npm install
-npm run start:dev
+1. cd server
+2. npm install
+3. npm run start:dev
 
 The server will start on http://localhost:4000
 
 # frontend setup
 
-cd client
-npm install
-npm run dev
+1. cd client
+2. npm install
+3. npm run dev
 
 The client will start on http://localhost:3000.
 
