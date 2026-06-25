@@ -1,6 +1,6 @@
 # Smart Bookmark
 
-A full-stack, intelligent web application created to effectively manage, arrange, and retrieve your web bookmarks. It has a relational tagging system, strong user authentication, and an AI-driven auto-tagging engine that automatically creates pertinent tags by analyzing website content.
+A full-stack, intelligent web application created to effectively manage, arrange, and retrieve your web bookmarks. It has a relational tagging system, strong user authentication, and an AI-driven auto-tagging engine that automatically creates pertinent tags by analyzing website content. No 3rd party AI tools used
 
 # Features
 
